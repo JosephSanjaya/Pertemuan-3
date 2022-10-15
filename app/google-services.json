@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "461616030076",
+    "project_id": "ukm-firebase-integration",
+    "storage_bucket": "ukm-firebase-integration.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461616030076:android:2ac27ada3865d213f344f9",
+        "android_client_info": {
+          "package_name": "com.ukm.firebaseintegration"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "461616030076-tjf54shag3d2usu1o4ql26ifn1nahmt0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI1kr4MfOahkHM1i3ET3tzoxjCU804UCY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "461616030076-tjf54shag3d2usu1o4ql26ifn1nahmt0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
