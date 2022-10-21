@@ -12,7 +12,9 @@ import androidx.navigation.fragment.findNavController
 import coil.load
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ukm.firebaseintegration.databinding.FragmentSecondBinding
@@ -31,7 +33,9 @@ class SecondFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private var isLightBulbOn = false
+    private var isLightBulbOn = true
+    private lateinit var bulbRef: DocumentReference
+    private lateinit var bulbListener: ListenerRegistration
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +49,8 @@ class SecondFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeBulb()
+        bulbRef = firestore.collection("iot_param")
+            .document("bulb_status")
         binding.buttonLogout.setOnClickListener {
             auth.signOut()
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
@@ -65,12 +70,9 @@ class SecondFragment : Fragment() {
     }
 
     private fun toggleBulbStatus() {
-        firestore.collection("iot_param")
-            .document("bulb_status")
-            .update("isOn", !isLightBulbOn)
+        bulbRef.set(BulbStatus(!isLightBulbOn))
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    isLightBulbOn = !isLightBulbOn
                     Toast.makeText(context, "Success", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -79,13 +81,22 @@ class SecondFragment : Fragment() {
             }
     }
 
+    override fun onStart() {
+        super.onStart()
+        observeBulb()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        bulbListener.remove()
+    }
+
     private fun observeBulb() {
-        Firebase.firestore.collection("iot_param")
-            .document("bulb_status")
-            .addSnapshotListener { value, error ->
+        bulbListener = firestore.collection("iot_param").addSnapshotListener { value, error ->
                 if (error == null) {
-                    val data = value?.toObject(BulbStatus::class.java)
-                    isLightBulbOn = data?.isOn == true
+                    val status = value?.documents?.firstOrNull { it.id == "bulb_status" }
+                    val data = status?.toObject(BulbStatus::class.java)
+                    isLightBulbOn = data?.on == true
                     val tint = ContextCompat.getColor(
                         requireContext(),
                         if (isLightBulbOn) R.color.teal_200 else R.color.black
